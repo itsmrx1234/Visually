@@ -6,6 +6,7 @@ import { ProductGrid } from "@/components/product-grid";
 import { LoadingOverlay } from "@/components/loading-overlay";
 import { useToast } from "@/hooks/use-toast";
 import type { SearchFilters } from "@shared/schema";
+import { Badge } from "@/components/ui/badge";
 
 export default function Home() {
   const [searchId, setSearchId] = useState<string | null>(null);
@@ -46,33 +47,30 @@ export default function Home() {
       </div>
 
       {/* Header */}
-      <header className="glass-effect border-b border-border/50 animate-fade-in">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center group">
-              <div className="mr-3 p-2 rounded-xl gradient-primary glow-primary">
-                <Search className="text-primary-foreground text-xl" />
-              </div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Visual Product Matcher
-              </h1>
-            </div>
-            <nav className="hidden md:flex space-x-6">
-              <a href="#" className="text-muted-foreground hover:text-primary transition-all duration-300 hover:glow-primary">
-                How it works
-              </a>
-              <a href="#" className="text-muted-foreground hover:text-secondary transition-all duration-300 hover:glow-secondary">
-                Examples
-              </a>
-              <a href="#" className="text-muted-foreground hover:text-accent transition-all duration-300 hover:glow-accent">
-                API
-              </a>
-            </nav>
-            <button className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors" data-testid="mobile-menu-toggle">
-              <svg className="w-6 h-6 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+      <header className="text-center py-20 px-4 animate-fade-in">
+        <div className="max-w-4xl mx-auto space-y-8">
+          <div className="space-y-6">
+            <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-balance">
+              <span className="text-primary">
+                Find Products
+              </span>{" "}
+              <span className="text-foreground">Visually</span>
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-balance">
+              Upload any image and discover similar products instantly. Our smart visual search makes shopping easier than ever.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-4">
+            <Badge variant="secondary" className="px-4 py-2 text-sm font-medium">
+              ✨ AI Visual Recognition
+            </Badge>
+            <Badge variant="outline" className="px-4 py-2 text-sm font-medium">
+              ⚡ Instant Results
+            </Badge>
+            <Badge variant="outline" className="px-4 py-2 text-sm font-medium">
+              🎯 Smart Filtering
+            </Badge>
           </div>
         </div>
       </header>

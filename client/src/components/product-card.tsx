@@ -1,29 +1,24 @@
-import { useState } from "react";
-import { Heart, Star } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import type { ProductWithSimilarity } from "@shared/schema";
+import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ExternalLink, Heart } from 'lucide-react';
 
 interface ProductCardProps {
-  product: ProductWithSimilarity;
-  viewMode: 'grid' | 'list';
+  product: {
+    id: number;
+    name: string;
+    price: number;
+    category: string;
+    imageUrl: string;
+    description?: string;
+    brand?: string;
+  };
+  similarityScore?: number;
+  onViewProduct?: () => void;
 }
 
-export function ProductCard({ product, viewMode }: ProductCardProps) {
-  const [isWishlisted, setIsWishlisted] = useState(false);
-
-  const handleWishlistToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsWishlisted(!isWishlisted);
-  };
-
-  const getSimilarityColor = (score: number) => {
-    if (score >= 0.9) return "gradient-accent glow-accent";
-    if (score >= 0.7) return "gradient-secondary glow-secondary";
-    return "gradient-primary glow-primary";
-  };
-
+export function ProductCard({ product, similarityScore, onViewProduct }: ProductCardProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -31,107 +26,72 @@ export function ProductCard({ product, viewMode }: ProductCardProps) {
     }).format(price);
   };
 
-  if (viewMode === 'list') {
-    return (
-      <Card className="glass-effect border-border/50 hover-lift cursor-pointer group animate-fade-in">
-        <CardContent className="p-4">
-          <div className="flex gap-4">
-            <div className="relative flex-shrink-0">
-              <img
-                src={product.imageUrl}
-                alt={product.name}
-                className="w-24 h-24 object-cover rounded-xl group-hover:scale-110 transition-all duration-500"
-                data-testid={`product-image-${product.id}`}
-              />
-              <Badge
-                className={`absolute -top-2 -left-2 text-white font-bold ${getSimilarityColor(product.similarityScore)}`}
-                data-testid={`similarity-score-${product.id}`}
-              >
-                {Math.round(product.similarityScore * 100)}%
-              </Badge>
-            </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-foreground mb-1 truncate" data-testid={`product-name-${product.id}`}>
-                {product.name}
-              </h4>
-              <p className="text-sm text-muted-foreground mb-2" data-testid={`product-category-${product.id}`}>
-                {product.category}
-              </p>
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold text-foreground" data-testid={`product-price-${product.id}`}>
-                  {formatPrice(product.price)}
-                </span>
-                <div className="flex items-center gap-2">
-                  {product.rating && (
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm text-muted-foreground ml-1" data-testid={`product-rating-${product.id}`}>
-                        {product.rating}
-                      </span>
-                    </div>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleWishlistToggle}
-                    data-testid={`button-wishlist-${product.id}`}
-                  >
-                    <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  const getSimilarityBadgeColor = (score?: number) => {
+    if (!score) return 'secondary';
+    if (score >= 0.8) return 'default';
+    if (score >= 0.6) return 'secondary';
+    return 'outline';
+  };
+
+  const getSimilarityText = (score?: number) => {
+    if (!score) return '';
+    if (score >= 0.9) return 'Excellent match';
+    if (score >= 0.8) return 'Great match';
+    if (score >= 0.6) return 'Good match';
+    return 'Similar';
+  };
 
   return (
-    <Card className="glass-effect border-border/50 hover-lift cursor-pointer group animate-fade-in" data-testid={`product-card-${product.id}`}>
-      <div className="relative overflow-hidden rounded-t-xl">
+    <Card className="group overflow-hidden hover-scale subtle-border animate-fade-in">
+      <div className="aspect-square relative overflow-hidden bg-muted">
         <img
           src={product.imageUrl}
           alt={product.name}
-          className="w-full h-48 object-cover group-hover:scale-110 transition-all duration-500"
-          data-testid={`product-image-${product.id}`}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
         />
-        <Badge
-          className={`absolute top-3 left-3 text-white font-bold ${getSimilarityColor(product.similarityScore)}`}
-          data-testid={`similarity-score-${product.id}`}
-        >
-          {Math.round(product.similarityScore * 100)}%
-        </Badge>
-        <Button
-          variant="secondary"
-          size="sm"
-          className="absolute top-3 right-3 w-8 h-8 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-          onClick={handleWishlistToggle}
-          data-testid={`button-wishlist-${product.id}`}
-        >
-          <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
-        </Button>
+        {similarityScore && (
+          <div className="absolute top-3 left-3">
+            <Badge variant={getSimilarityBadgeColor(similarityScore)} className="text-xs font-medium">
+              {Math.round(similarityScore * 100)}% {getSimilarityText(similarityScore)}
+            </Badge>
+          </div>
+        )}
+        <button className="absolute top-3 right-3 p-2 rounded-full bg-white/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-white">
+          <Heart className="w-4 h-4 text-gray-600" />
+        </button>
       </div>
-      <CardContent className="p-4">
-        <h4 className="font-medium text-foreground mb-1 line-clamp-2" data-testid={`product-name-${product.id}`}>
-          {product.name}
-        </h4>
-        <p className="text-sm text-muted-foreground mb-2" data-testid={`product-category-${product.id}`}>
-          {product.category}
-        </p>
-        <div className="flex justify-between items-center">
-          <span className="text-lg font-semibold text-foreground" data-testid={`product-price-${product.id}`}>
-            {formatPrice(product.price)}
-          </span>
-          {product.rating && (
-            <div className="flex items-center">
-              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              <span className="text-sm text-muted-foreground ml-1" data-testid={`product-rating-${product.id}`}>
-                {product.rating}
-              </span>
-            </div>
+
+      <CardContent className="p-4 space-y-3">
+        <div className="space-y-1">
+          <h3 className="font-semibold text-sm leading-tight line-clamp-2 text-balance">
+            {product.name}
+          </h3>
+          {product.brand && (
+            <p className="text-xs text-muted-foreground">{product.brand}</p>
           )}
         </div>
+
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-lg font-bold text-primary">
+              {formatPrice(product.price)}
+            </p>
+            <Badge variant="outline" className="text-xs">
+              {product.category}
+            </Badge>
+          </div>
+        </div>
+
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full focus-ring"
+          onClick={onViewProduct}
+        >
+          <ExternalLink className="w-4 h-4 mr-2" />
+          View Details
+        </Button>
       </CardContent>
     </Card>
   );
